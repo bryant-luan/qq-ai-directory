@@ -1,0 +1,11 @@
+import tools from "@/data/tools.json";
+import cats from "@/data/categories.json";
+import releases from "@/data/releases.json";
+export type Tool = { slug: string; name: string; url: string; category: string[]; description: string; pricing: string };
+export type Cat = { slug: string; name: string; title: string; blurb: string };
+export const TOOLS = tools as Tool[];
+export const CATS = cats as Cat[];
+export const RELEASES = releases as { date: string; title: string; note: string; url: string }[];
+export const SITE = (process.env.NEXT_PUBLIC_SITE_URL || "https://qq-ai-directory.vercel.app").replace(/\/$/, "");
+export const SPONSOR_URL = process.env.NEXT_PUBLIC_SPONSOR_URL || "";
+export const toolsIn = (c: string) => TOOLS.filter((t) => t.category.includes(c));
