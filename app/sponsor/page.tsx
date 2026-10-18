@@ -1,5 +1,6 @@
 import QRCode from "qrcode";
 import CopyButton from "@/components/CopyButton";
+import Newsletter from "@/components/Newsletter";
 export const metadata = { title: "Sponsor us" };
 const EVM = "0xb7638366ab4df9f2ab847980948e9075dfd941e7";
 const SOL = "DtpvU6gW68utoSex6zYaHJ2BeRyNRcDfeG3eH97uMedG";
@@ -26,6 +27,11 @@ export default async function Page() {
         <div role="img" aria-label={`QR code of the ${o.label} address`} dangerouslySetInnerHTML={{ __html: qrs[i] }} />
       </section>
     ))}
+    <section className="card" id="bank-transfer">
+      <h2 style={{ marginTop: 0 }}>銀行轉帳(台灣) / Bank transfer (Taiwan, TWD)</h2>
+      <p>想用新台幣銀行轉帳贊助?請透過下方聯絡方式來信詢問,我們會私下提供帳號。</p>
+    </section>
     <p><small>The QR codes contain only the address; select the correct network in your wallet. USDC on BNB Chain uses a different token contract and decimals than on Base/Polygon. Payments are on-chain and generally irreversible; double-check the address and network.</small></p>
+    <Newsletter />
   </main>);
 }
