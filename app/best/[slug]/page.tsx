@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { CATS, SITE, toolsIn } from "@/lib/data";
 import ToolCard from "@/components/ToolCard";
 export const dynamicParams = false;
@@ -34,6 +35,19 @@ export default function Page({ params }: { params: { slug: string } }) {
           BitoPro: 7276911675<br />
           Toobit: 8fUBLg
         </p>
+      </div>
+    )}
+    {c.slug === "crypto-trading" && (
+      <div className="card" style={{ marginTop: "24px", marginBottom: "24px", background: "#e7f5ff" }}>
+        <h2 style={{ fontSize: "1.1em", marginTop: 0 }}>免費計算工具 Free Calculators</h2>
+        <p style={{ fontSize: "0.95em", lineHeight: "1.6", marginBottom: "12px" }}>
+          我們提供免費的加密貨幣合約交易計算工具,無需註冊,所有計算在瀏覽器本地完成:
+        </p>
+        <ul style={{ lineHeight: "1.8", marginBottom: "12px" }}>
+          <li><Link href="/tools/contract-calculator"><strong>合約計算機 / 爆倉價計算</strong></Link> — 計算強平價、盈虧、報酬率</li>
+          <li><Link href="/tools/funding-rate-calculator"><strong>資金費率計算</strong></Link> — 計算永續合約資金費用成本或收入</li>
+        </ul>
+        <Link href="/tools" className="btn">查看所有工具 →</Link>
       </div>
     )}
     {ts.map((t, i) => <ToolCard key={t.slug} t={t} rank={i + 1} />)}
