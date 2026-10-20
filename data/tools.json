@@ -33,5 +33,5 @@
 {"slug":"tradingview","name":"TradingView","url":"https://www.tradingview.com","category":["crypto-trading"],"description":"Charting and market-analysis platform for stocks and crypto; scripting via Pine Script. Not primarily an AI tool.","pricing":"Free tier and paid plans"},
 {"slug":"coingecko","name":"CoinGecko","url":"https://www.coingecko.com","category":["crypto-trading"],"description":"Crypto market data aggregator with a public API often used in trading bots and agents. Data, not AI.","pricing":"Free tier and paid API"},
 {"slug":"dune","name":"Dune","url":"https://dune.com","category":["crypto-trading"],"description":"Onchain data analytics with SQL queries and community dashboards.","pricing":"Free tier and paid plans"},
-{"slug":"freqtrade","name":"Freqtrade","url":"https://www.freqtrade.io","category":["crypto-trading"],"description":"Open-source crypto trading bot with backtesting; strategies can use ML. Trading involves risk.","pricing":"Open source"}
+{"slug":"freqtrade","name":"Freqtrade","url":"https://www.freqtrade.io/en/stable/","category":["crypto-trading"],"description":"Open-source crypto trading bot with backtesting; strategies can use ML. Trading involves risk.","pricing":"Open source"}
 ]
