@@ -1,0 +1,2 @@
+Image file bitget-wallet-invite.jpg should be placed here.
+The component references /bitget-wallet-invite.jpg
