@@ -4,9 +4,6 @@
  *
  * Usage:
  *   node scripts/refresh-see-journal-win-stats.mjs [path/to/see_journal.jsonl]
- *
- * Default input (Project store on agent VMs):
- *   /cursor/stores/self/internal/see-journal/see_journal-2.jsonl
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -23,6 +20,15 @@ if (!existsSync(inPath)) {
   process.exit(1);
 }
 
+const RR_LABEL = {
+  rr_lt_0_75: "<0.75R",
+  rr_1_0: "約 1R:1R",
+  rr_1_5: "約 1:1.5",
+  rr_2_0: "約 1:2",
+  rr_3_0: "約 1:3",
+  rr_gt_3_5: ">3.5R",
+};
+
 function firstTp(o) {
   if (o.tp != null && Number.isFinite(Number(o.tp))) return Number(o.tp);
   if (Array.isArray(o.tp_prices) && o.tp_prices.length) {
@@ -30,6 +36,15 @@ function firstTp(o) {
     if (Number.isFinite(v)) return v;
   }
   return null;
+}
+
+function rrBucket(rr) {
+  if (rr < 0.75) return "rr_lt_0_75";
+  if (rr < 1.25) return "rr_1_0";
+  if (rr < 1.75) return "rr_1_5";
+  if (rr < 2.5) return "rr_2_0";
+  if (rr < 3.5) return "rr_3_0";
+  return "rr_gt_3_5";
 }
 
 function pack(ws) {
@@ -48,6 +63,7 @@ function pack(ws) {
 
 const bySymDir = new Map();
 const byDir = new Map();
+const byDirRr = new Map();
 const all = [];
 let nRows = 0;
 let n1to1 = 0;
@@ -73,20 +89,31 @@ for (const line of readFileSync(inPath, "utf8").split("\n")) {
   const sym = String(o.symbol || "").toUpperCase();
   const d = String(o.direction || "").toLowerCase();
   if (!sym || (d !== "long" && d !== "short")) continue;
+  const rr = G / R;
   nRows += 1;
-  if (Math.abs(G / R - 1) < 0.05) n1to1 += 1;
+  if (Math.abs(rr - 1) < 0.05) n1to1 += 1;
   all.push(w);
   if (!byDir.has(d)) byDir.set(d, []);
   byDir.get(d).push(w);
   const key = `${sym}|${d}`;
   if (!bySymDir.has(key)) bySymDir.set(key, []);
   bySymDir.get(key).push(w);
+  const rrKey = `${d}|${rrBucket(rr)}`;
+  if (!byDirRr.has(rrKey)) byDirRr.set(rrKey, []);
+  byDirRr.get(rrKey).push(w);
 }
 
 const bySymbolDirection = {};
 for (const [key, ws] of [...bySymDir.entries()].sort((a, b) => b[1].length - a[1].length)) {
-  if (ws.length < 3) continue;
+  if (ws.length < 5) continue;
   bySymbolDirection[key] = pack(ws);
+}
+
+const byDirectionRr = {};
+for (const [key, ws] of [...byDirRr.entries()].sort((a, b) => b[1].length - a[1].length)) {
+  if (ws.length < 10) continue;
+  const b = key.split("|")[1];
+  byDirectionRr[key] = { ...pack(ws), rrBucket: b, rrLabelZh: RR_LABEL[b] };
 }
 
 const byDirection = {};
@@ -98,15 +125,18 @@ const payload = {
   filter: "rows with numeric win 0–100 plus entry/sl/tp",
   nWinRows: nRows,
   nApprox1to1RR: n1to1,
-  minSymbolSamples: 3,
+  minSymbolSamples: 5,
+  minDirectionRrSamples: 10,
+  minDirectionSamples: 20,
   disclaimerZh:
     "SEE journal 樣本參考勝率（多為模型 win 欄位，非保證；journal 設定多為約 1R:1R）",
   overall: pack(all),
   byDirection,
+  byDirectionRr,
   bySymbolDirection,
 };
 
 writeFileSync(outPath, `${JSON.stringify(payload, null, 2)}\n`);
 console.log(
-  `Wrote ${outPath} (n=${nRows}, symbolKeys=${Object.keys(bySymbolDirection).length})`
+  `Wrote ${outPath} (n=${nRows}, symbolKeys=${Object.keys(bySymbolDirection).length}, dirRr=${Object.keys(byDirectionRr).length})`
 );

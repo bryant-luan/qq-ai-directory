@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import PairCombobox from "@/components/PairCombobox";
 import {
   FALLBACK_USDTM_PAIRS,
@@ -142,76 +142,182 @@ export default function ContractCalculatorClient() {
     targetRaw: targetPrice,
   });
 
-  const journalWin = lookupSeeJournalWin(pairLabel, direction);
+  const rewardOverRisk =
+    hitTpResult?.ok && hitTpResult.riskDistance > 0
+      ? hitTpResult.rewardDistance / hitTpResult.riskDistance
+      : undefined;
+
+  const journalWin = lookupSeeJournalWin(pairLabel, direction, rewardOverRisk);
   const journalMeta = seeJournalMeta();
 
-  const winRatePercentLabel = (probability: number) =>
-    `${(probability * 100).toFixed(2)}%`;
+  const formatDist = (n: number) => {
+    if (n >= 100) return n.toFixed(2);
+    if (n >= 1) return n.toFixed(4);
+    if (n >= 0.01) return n.toFixed(6);
+    return n.toPrecision(4);
+  };
+
+  const formatPriceInput = (n: number) => {
+    if (!Number.isFinite(n)) return "";
+    if (Math.abs(n) >= 1000) return n.toFixed(2);
+    if (Math.abs(n) >= 1) return String(Number(n.toFixed(6)));
+    return String(Number(n.toPrecision(8)));
+  };
+
+  /** Set TP/SL from entry using reward multiple of risk (1 = 1R:1R, 2 = 1:2). */
+  const applyRrPreset = (rewardMultiple: 1 | 2) => {
+    const entry = parseFloat(entryPrice);
+    if (!Number.isFinite(entry) || entry <= 0) return;
+
+    let risk = 0;
+    const existingSl = parseFloat(stopLossPrice);
+    if (Number.isFinite(existingSl) && existingSl > 0 && existingSl !== entry) {
+      const sideOk =
+        direction === "long" ? existingSl < entry : existingSl > entry;
+      if (sideOk) risk = Math.abs(entry - existingSl);
+    }
+    if (risk <= 0) risk = entry * 0.01; // default 1% of entry
+
+    const sl = direction === "long" ? entry - risk : entry + risk;
+    const tp =
+      direction === "long"
+        ? entry + risk * rewardMultiple
+        : entry - risk * rewardMultiple;
+
+    setStopLossPrice(formatPriceInput(sl));
+    setTakeProfitPrice(formatPriceInput(tp));
+    // Keep PnL target in sync with first TP when empty or previously synced-looking
+    if (!targetPrice.trim() || targetPrice === takeProfitPrice) {
+      setTargetPrice(formatPriceInput(tp));
+    }
+  };
+
+  const syncTargetFromTp = () => {
+    const tp =
+      takeProfitPrice.trim() ||
+      (hitTpResult?.ok ? formatPriceInput(hitTpResult.takeProfit) : "");
+    if (tp) setTargetPrice(tp);
+  };
+
+  const syncTpFromTarget = () => {
+    if (targetPrice.trim()) setTakeProfitPrice(targetPrice.trim());
+  };
+
+  const chipBtn: CSSProperties = {
+    padding: "6px 10px",
+    fontSize: "14px",
+    border: "1px solid #adb5bd",
+    borderRadius: 4,
+    background: "#f8f9fa",
+    cursor: "pointer",
+  };
 
   const renderWinRateBlock = (opts?: { compactNote?: string }) => (
-    <>
-      {hitTpResult?.ok && (
+    <div
+      style={{
+        marginTop: 12,
+        padding: "12px 14px",
+        background: hitTpResult?.ok ? "#f8fbff" : "#fff5f5",
+        border: `1px solid ${hitTpResult?.ok ? "#a5d8ff" : "#ffa8a8"}`,
+        borderRadius: 6,
+      }}
+    >
+      <div style={{ fontWeight: 600, marginBottom: 8, color: "#212529" }}>
+        進場勝率
+      </div>
+      {hitTpResult?.ok ? (
         <>
-          <p style={{ marginBottom: 4 }}>
-            <strong>公式勝率 / 先到止盈機率:</strong>{" "}
-            <span
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: "0.9em", color: "#495057", marginBottom: 2 }}>
+              公式勝率（隨機漫步 R/(R+G)）
+            </div>
+            <div
               style={{
                 color: "#1864ab",
-                fontWeight: 700,
-                fontSize: "1.35em",
+                fontWeight: 800,
+                fontSize: "1.75em",
+                lineHeight: 1.15,
                 letterSpacing: "0.02em",
               }}
             >
-              {winRatePercentLabel(hitTpResult.probability)}
-            </span>
-          </p>
-          <p style={{ fontSize: "0.9em", color: "#495057", marginTop: 0 }}>
-            風險距離 R={hitTpResult.riskDistance.toFixed(2)} {quote} · 報酬距離 G=
-            {hitTpResult.rewardDistance.toFixed(2)} {quote} · 隨機漫步 R/(R+G)
-            {hitTpResult.usedTargetAsTp ? " · 止盈暫以目標價計算" : ""}
-          </p>
-          {journalWin && (
-            <>
-              <p style={{ marginBottom: 4, marginTop: 12 }}>
-                <strong>SEE journal 參考勝率:</strong>{" "}
-                <span
-                  style={{
-                    color: "#2b8a3e",
-                    fontWeight: 700,
-                    fontSize: "1.35em",
-                    letterSpacing: "0.02em",
-                  }}
-                >
-                  {journalWin.meanWin.toFixed(1)}%
-                </span>
-              </p>
-              <p style={{ fontSize: "0.9em", color: "#495057", marginTop: 0 }}>
-                {journalWin.labelZh} · 樣本 n={journalWin.n} · 中位數{" "}
-                {journalWin.medianWin.toFixed(1)}%
-                {journalWin.scope !== "symbol_direction"
-                  ? ` · 此幣種無足夠專屬樣本，改用${journalWin.labelZh}`
-                  : ""}
-              </p>
-              <p style={{ fontSize: "0.85em", color: "#868e96", marginTop: 4 }}>
-                {seeJournalDisclaimer()}（彙總 {journalMeta.nWinRows} 筆有 win
-                欄位的紀錄；約 {journalMeta.nApprox1to1RR} 筆為 1R:1R 設定）
-              </p>
-            </>
+              {(hitTpResult.probability * 100).toFixed(2)}%
+            </div>
+            <div style={{ fontSize: "0.88em", color: "#495057", marginTop: 4 }}>
+              R={formatDist(hitTpResult.riskDistance)} {quote} · G=
+              {formatDist(hitTpResult.rewardDistance)} {quote}
+              {rewardOverRisk != null
+                ? ` · 報酬風險比 1:${rewardOverRisk.toFixed(2).replace(/\.00$/, "")}`
+                : ""}
+              {hitTpResult.usedTargetAsTp ? " · 止盈暫以目標價計算" : ""}
+            </div>
+          </div>
+
+          {journalWin ? (
+            <div
+              style={{
+                borderTop: "1px dashed #ced4da",
+                paddingTop: 10,
+                marginTop: 4,
+              }}
+            >
+              <div style={{ fontSize: "0.9em", color: "#495057", marginBottom: 2 }}>
+                SEE journal 參考（非正式保證）
+              </div>
+              <div
+                style={{
+                  color: "#2b8a3e",
+                  fontWeight: 700,
+                  fontSize: "1.35em",
+                  lineHeight: 1.2,
+                }}
+              >
+                {journalWin.meanWin.toFixed(1)}%
+              </div>
+              <div style={{ fontSize: "0.88em", color: "#495057", marginTop: 4 }}>
+                使用樣本：{journalWin.labelZh}
+                {journalWin.rrLabelZh && journalWin.scope === "direction_rr"
+                  ? ""
+                  : journalWin.rrLabelZh
+                    ? ` · 目前設定 ${journalWin.rrLabelZh}`
+                    : ""}
+                {" · "}n={journalWin.n} · 中位數 {journalWin.medianWin.toFixed(1)}%
+              </div>
+              {journalWin.rrMismatchNote && (
+                <div style={{ fontSize: "0.85em", color: "#e67700", marginTop: 4 }}>
+                  {journalWin.rrMismatchNote}
+                </div>
+              )}
+              <div style={{ fontSize: "0.8em", color: "#868e96", marginTop: 6 }}>
+                {seeJournalDisclaimer()}（{journalMeta.nWinRows} 筆 win 紀錄；約{" "}
+                {journalMeta.nApprox1to1RR} 筆為 1R:1R。n&lt;門檻不顯示）
+              </div>
+            </div>
+          ) : (
+            <div
+              style={{
+                borderTop: "1px dashed #ced4da",
+                paddingTop: 10,
+                marginTop: 4,
+                fontSize: "0.88em",
+                color: "#868e96",
+              }}
+            >
+              SEE journal：此組合樣本不足，僅顯示公式勝率（不臆造百分比）。
+            </div>
           )}
+
           {opts?.compactNote && (
-            <p style={{ fontSize: "0.85em", color: "#868e96", marginBottom: 0 }}>
+            <p style={{ fontSize: "0.85em", color: "#868e96", marginBottom: 0, marginTop: 8 }}>
               {opts.compactNote}
             </p>
           )}
         </>
-      )}
-      {hitTpResult && !hitTpResult.ok && (
-        <p style={{ color: "#c92a2a" }}>
-          <strong>進場勝率 / 先到止盈機率:</strong>{" "}
+      ) : hitTpResult ? (
+        <p style={{ margin: 0, color: "#c92a2a", lineHeight: 1.5 }}>
           {hitTpReasonLabel(direction, hitTpResult.reason)}
         </p>
-      )}
-    </>
+      ) : null}
+    </div>
   );
 
   const pairStatusNote = pairsLoading
@@ -295,6 +401,27 @@ export default function ContractCalculatorClient() {
         <div style={{ marginBottom: "16px" }}>
           <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>目標價格 Target Price ({quote}, 選填) · {pairLabel}</label>
           <input type="number" value={targetPrice} onChange={(e) => setTargetPrice(e.target.value)} placeholder="例: 55000" style={{ width: "100%", padding: "8px", fontSize: "16px" }} />
+        </div>
+
+        <div style={{ marginBottom: "12px" }}>
+          <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>止盈 / 止損快捷（需先填開倉價）</label>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            <button type="button" style={chipBtn} onClick={() => applyRrPreset(1)} disabled={!entryPrice.trim()}>
+              設 1R:1R
+            </button>
+            <button type="button" style={chipBtn} onClick={() => applyRrPreset(2)} disabled={!entryPrice.trim()}>
+              設 1:2
+            </button>
+            <button type="button" style={chipBtn} onClick={syncTpFromTarget} disabled={!targetPrice.trim()}>
+              目標價 → 止盈
+            </button>
+            <button type="button" style={chipBtn} onClick={syncTargetFromTp} disabled={!takeProfitPrice.trim() && !(hitTpResult?.ok)}>
+              止盈 → 目標價
+            </button>
+          </div>
+          <p style={{ margin: "6px 0 0", fontSize: "0.85em", color: "#868e96" }}>
+            快捷會依現有止損距離設 TP/SL；若尚無止損則預設風險為開倉價的 1%。不影響強平公式。
+          </p>
         </div>
 
         <div style={{ marginBottom: "16px" }}>

@@ -154,29 +154,29 @@ export function hitTpReasonLabel(
 ): string {
   switch (reason) {
     case "missing_sl":
-      return "請填寫止損價";
+      return "還差止損價 — 請填寫止損，或用下方「1R:1R / 1:2」快捷設定";
     case "missing_tp":
-      return "請填寫止盈價（或填寫位於獲利方向的目標價）";
+      return "還差止盈價 — 請填寫止盈，或填獲利向的目標價（可代算止盈）";
     case "wrong_side_tp":
       return direction === "long"
-        ? "做多時止盈須高於開倉價"
-        : "做空時止盈須低於開倉價";
+        ? "止盈方位不對 — 做多時止盈須高於開倉價"
+        : "止盈方位不對 — 做空時止盈須低於開倉價";
     case "wrong_side_sl":
       return direction === "long"
-        ? "做多時止損須低於開倉價"
-        : "做空時止損須高於開倉價";
+        ? "止損方位不對 — 做多時止損須低於開倉價"
+        : "止損方位不對 — 做空時止損須高於開倉價";
     case "wrong_side":
       return direction === "long"
-        ? "做多時止盈須高於開倉價、止損須低於開倉價"
-        : "做空時止盈須低於開倉價、止損須高於開倉價";
+        ? "止盈/止損方位不對 — 做多：止盈 > 開倉 > 止損"
+        : "止盈/止損方位不對 — 做空：止損 > 開倉 > 止盈";
     case "zero_distance":
-      return "止盈或止損與開倉價距離不可為 0";
+      return "距離為 0 — 止盈與止損不可等於開倉價";
     case "target_not_profitable":
       return direction === "long"
-        ? "目標價未高於開倉價，無法作為止盈；請填寫止盈價"
-        : "目標價未低於開倉價，無法作為止盈；請填寫止盈價";
+        ? "目標價未高於開倉，無法代為止盈 — 請改目標價或直接填止盈"
+        : "目標價未低於開倉，無法代為止盈 — 請改目標價或直接填止盈";
     case "invalid":
     default:
-      return "請輸入有效的開倉價、止盈與止損";
+      return "請先填有效開倉價，再填止盈與止損";
   }
 }
