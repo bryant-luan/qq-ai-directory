@@ -66,7 +66,7 @@ export default function ContractCalculatorPage() {
     <main>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLD) }} />
       <h1>合約計算機 / 爆倉價(強平價)計算</h1>
-      <p>快速計算加密貨幣合約交易的預估強平價、盈虧、報酬率與手續費。支援做多/做空、逐倉/全倉模式。</p>
+      <p>快速計算加密貨幣合約交易的預估強平價、盈虧、報酬率與手續費。可搜尋幣安 USDT-M 永續交易對、支援做多/做空、逐倉/全倉模式。</p>
 
       <div className="card" style={{ background: "#fff3cd", borderColor: "#ffc107", marginBottom: "20px" }}>
         <p style={{ margin: 0, fontSize: "0.95em", lineHeight: "1.6" }}>
@@ -84,8 +84,10 @@ export default function ContractCalculatorPage() {
         <p><strong>盈虧 (做多):</strong> (目標價 - 開倉價) / 開倉價 × 倉位大小 - 手續費</p>
         <p><strong>盈虧 (做空):</strong> (開倉價 - 目標價) / 開倉價 × 倉位大小 - 手續費</p>
         <p><strong>報酬率 ROE:</strong> 盈虧 / 保證金 × 100%</p>
+        <p><strong>公式勝率 / 先到止盈機率:</strong> 風險距離 R = |開倉價 − 止損|; 報酬距離 G = |止盈 − 開倉價|; 機率 = R / (R + G)（平坦障礙、隨機漫步 / 賭徒破產假設; 做多止盈高於開倉、止損低於開倉; 做空相反）</p>
+        <p><strong>SEE journal 參考勝率:</strong> 自 SEE／SEE ONE 交易日誌中具 <code>win</code> 欄位的樣本，優先交易對+方向，其次方向×報酬風險比分桶，再退回方向／全樣本；樣本數低於門檻不顯示。多為模型預測勝率、設定約 1R:1R，非實盤保證。</p>
         <p style={{ fontSize: "0.9em", color: "#666", marginTop: "12px" }}>
-          實際強平價會受資金費率、未實現盈虧、保險基金等因素影響,各交易所略有不同,請以交易所顯示為準。
+          實際強平價會受資金費率、未實現盈虧、保險基金等因素影響,各交易所略有不同,請以交易所顯示為準。先到止盈機率為理論估算,不考慮趨勢、滑點與手續費。
         </p>
       </div>
 
