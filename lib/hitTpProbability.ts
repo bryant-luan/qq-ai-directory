@@ -1,5 +1,15 @@
 export type TradeDirection = "long" | "short";
 
+export type HitTpFailReason =
+  | "invalid"
+  | "missing_tp"
+  | "missing_sl"
+  | "wrong_side"
+  | "wrong_side_tp"
+  | "wrong_side_sl"
+  | "zero_distance"
+  | "target_not_profitable";
+
 export type HitTpProbabilityResult =
   | {
       ok: true;
@@ -7,14 +17,21 @@ export type HitTpProbabilityResult =
       probability: number;
       riskDistance: number;
       rewardDistance: number;
+      /** True when 止盈 was empty and 目標價 was used as TP. */
+      usedTargetAsTp?: boolean;
+      takeProfit: number;
+      stopLoss: number;
     }
-  | { ok: false; reason: "invalid" | "wrong_side" | "zero_distance" };
+  | { ok: false; reason: HitTpFailReason };
+
+function isProfitableTarget(direction: TradeDirection, entry: number, target: number): boolean {
+  return direction === "long" ? target > entry : target < entry;
+}
 
 /**
  * P(hit take-profit before stop-loss) under a flat-barrier random walk
  * (gambler's ruin): P = R / (R + G), where R = risk distance |E−SL|,
- * G = reward distance |TP−E|. Same distances for long and short once
- * TP/SL are on the correct side of entry.
+ * G = reward distance |TP−E|.
  */
 export function hitTpBeforeSlProbability(
   direction: TradeDirection,
@@ -38,13 +55,12 @@ export function hitTpBeforeSlProbability(
     return { ok: false, reason: "zero_distance" };
   }
 
-  const onCorrectSide =
-    direction === "long"
-      ? takeProfit > entry && stopLoss < entry
-      : takeProfit < entry && stopLoss > entry;
-
-  if (!onCorrectSide) {
-    return { ok: false, reason: "wrong_side" };
+  if (direction === "long") {
+    if (!(takeProfit > entry)) return { ok: false, reason: "wrong_side_tp" };
+    if (!(stopLoss < entry)) return { ok: false, reason: "wrong_side_sl" };
+  } else {
+    if (!(takeProfit < entry)) return { ok: false, reason: "wrong_side_tp" };
+    if (!(stopLoss > entry)) return { ok: false, reason: "wrong_side_sl" };
   }
 
   return {
@@ -52,5 +68,115 @@ export function hitTpBeforeSlProbability(
     probability: riskDistance / (riskDistance + rewardDistance),
     riskDistance,
     rewardDistance,
+    takeProfit,
+    stopLoss,
   };
+}
+
+export type ResolveWinRateInput = {
+  direction: TradeDirection;
+  entry: number;
+  /** Raw 止盈 field (may be empty). */
+  takeProfitRaw: string;
+  /** Raw 止損 field (may be empty). */
+  stopLossRaw: string;
+  /** Raw 目標價 field — used as TP when 止盈 is empty and target is on the profitable side. */
+  targetRaw: string;
+};
+
+/**
+ * Resolve win-rate inputs: prefer explicit TP; else profitable 目標價 as TP.
+ * Surfaces missing-SL / missing-TP before a generic wrong-side message.
+ */
+export function resolveHitTpWinRate(input: ResolveWinRateInput): HitTpProbabilityResult | null {
+  const { direction, entry, takeProfitRaw, stopLossRaw, targetRaw } = input;
+  const tpFilled = takeProfitRaw.trim() !== "";
+  const slFilled = stopLossRaw.trim() !== "";
+  const targetFilled = targetRaw.trim() !== "";
+
+  // Nothing relevant entered — stay silent.
+  if (!tpFilled && !slFilled && !targetFilled) return null;
+  if (!Number.isFinite(entry) || entry <= 0) {
+    if (tpFilled || slFilled || targetFilled) return { ok: false, reason: "invalid" };
+    return null;
+  }
+
+  let takeProfit = tpFilled ? parseFloat(takeProfitRaw) : NaN;
+  let usedTargetAsTp = false;
+
+  if (!tpFilled && targetFilled) {
+    const target = parseFloat(targetRaw);
+    if (!Number.isFinite(target)) {
+      // fall through — may still need SL message
+    } else if (isProfitableTarget(direction, entry, target)) {
+      takeProfit = target;
+      usedTargetAsTp = true;
+    } else if (slFilled) {
+      // Target present but not usable as TP; SL alone isn't enough.
+      return { ok: false, reason: "target_not_profitable" };
+    } else {
+      // Only unprofitable target — no win-rate attempt.
+      return null;
+    }
+  }
+
+  if (!slFilled) {
+    // Have (or could have) a TP side interest but no SL.
+    if (tpFilled || usedTargetAsTp || (targetFilled && Number.isFinite(parseFloat(targetRaw)))) {
+      return { ok: false, reason: "missing_sl" };
+    }
+    return null;
+  }
+
+  if (!Number.isFinite(takeProfit)) {
+    return { ok: false, reason: "missing_tp" };
+  }
+
+  const stopLoss = parseFloat(stopLossRaw);
+  if (!Number.isFinite(stopLoss)) {
+    return { ok: false, reason: "missing_sl" };
+  }
+
+  const result = hitTpBeforeSlProbability(direction, entry, takeProfit, stopLoss);
+  if (result.ok) {
+    return { ...result, usedTargetAsTp };
+  }
+  // Map legacy wrong_side if any
+  if (result.reason === "wrong_side") {
+    return result;
+  }
+  return result;
+}
+
+export function hitTpReasonLabel(
+  direction: TradeDirection,
+  reason: HitTpFailReason
+): string {
+  switch (reason) {
+    case "missing_sl":
+      return "請填寫止損價";
+    case "missing_tp":
+      return "請填寫止盈價（或填寫位於獲利方向的目標價）";
+    case "wrong_side_tp":
+      return direction === "long"
+        ? "做多時止盈須高於開倉價"
+        : "做空時止盈須低於開倉價";
+    case "wrong_side_sl":
+      return direction === "long"
+        ? "做多時止損須低於開倉價"
+        : "做空時止損須高於開倉價";
+    case "wrong_side":
+      return direction === "long"
+        ? "做多時止盈須高於開倉價、止損須低於開倉價"
+        : "做空時止盈須低於開倉價、止損須高於開倉價";
+    case "zero_distance":
+      return "止盈或止損與開倉價距離不可為 0";
+    case "target_not_profitable":
+      return direction === "long"
+        ? "目標價未高於開倉價，無法作為止盈；請填寫止盈價"
+        : "目標價未低於開倉價，無法作為止盈；請填寫止盈價";
+    case "invalid":
+    default:
+      return "請輸入有效的開倉價、止盈與止損";
+  }
 }

@@ -6,7 +6,10 @@ import {
   preferDefaultPair,
   type ContractPair,
 } from "@/lib/binanceUsdtmPairs";
-import { hitTpBeforeSlProbability } from "@/lib/hitTpProbability";
+import {
+  hitTpReasonLabel,
+  resolveHitTpWinRate,
+} from "@/lib/hitTpProbability";
 
 export default function ContractCalculatorClient() {
   const [pairs, setPairs] = useState<ContractPair[]>(FALLBACK_USDTM_PAIRS);
@@ -126,26 +129,16 @@ export default function ContractCalculatorClient() {
   const result = calculate();
 
   const entryNum = parseFloat(entryPrice);
-  const tpNum = parseFloat(takeProfitPrice);
-  const slNum = parseFloat(stopLossPrice);
-  const hasTpSlAttempt =
-    takeProfitPrice.trim() !== "" || stopLossPrice.trim() !== "";
-  const hitTpResult =
-    takeProfitPrice.trim() !== "" && stopLossPrice.trim() !== ""
-      ? hitTpBeforeSlProbability(direction, entryNum, tpNum, slNum)
-      : null;
+  const hitTpResult = resolveHitTpWinRate({
+    direction,
+    entry: entryNum,
+    takeProfitRaw: takeProfitPrice,
+    stopLossRaw: stopLossPrice,
+    targetRaw: targetPrice,
+  });
 
-  const hitTpReasonLabel = (reason: "invalid" | "wrong_side" | "zero_distance") => {
-    if (reason === "wrong_side") {
-      return direction === "long"
-        ? "做多時止盈須高於開倉價、止損須低於開倉價"
-        : "做空時止盈須低於開倉價、止損須高於開倉價";
-    }
-    if (reason === "zero_distance") {
-      return "止盈或止損與開倉價距離不可為 0";
-    }
-    return "請輸入有效的開倉價、止盈與止損";
-  };
+  const winRatePercentLabel = (probability: number) =>
+    `${(probability * 100).toFixed(2)}%`;
 
   const pairStatusNote = pairsLoading
     ? "正在載入幣安 USDT-M 永續交易對…"
@@ -257,20 +250,30 @@ export default function ContractCalculatorClient() {
           )}
           {hitTpResult?.ok && (
             <>
-              <p>
+              <p style={{ marginBottom: 4 }}>
                 <strong>進場勝率 / 先到止盈機率:</strong>{" "}
-                <span style={{ color: "#1864ab", fontWeight: 600 }}>
-                  {(hitTpResult.probability * 100).toFixed(2)}%
+                <span
+                  style={{
+                    color: "#1864ab",
+                    fontWeight: 700,
+                    fontSize: "1.35em",
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  {winRatePercentLabel(hitTpResult.probability)}
                 </span>
               </p>
-              <p style={{ fontSize: "0.9em", color: "#495057", marginTop: "-8px" }}>
-                風險距離 R={hitTpResult.riskDistance.toFixed(2)} {quote} · 報酬距離 G={hitTpResult.rewardDistance.toFixed(2)} {quote} · 公式 R/(R+G)（隨機漫步假設）
+              <p style={{ fontSize: "0.9em", color: "#495057", marginTop: 0 }}>
+                風險距離 R={hitTpResult.riskDistance.toFixed(2)} {quote} · 報酬距離 G=
+                {hitTpResult.rewardDistance.toFixed(2)} {quote} · 公式 R/(R+G)
+                {hitTpResult.usedTargetAsTp ? " · 止盈暫以目標價計算" : ""}
               </p>
             </>
           )}
-          {hitTpResult && !hitTpResult.ok && hasTpSlAttempt && (
+          {hitTpResult && !hitTpResult.ok && (
             <p style={{ color: "#c92a2a" }}>
-              <strong>進場勝率 / 先到止盈機率:</strong> {hitTpReasonLabel(hitTpResult.reason)}
+              <strong>進場勝率 / 先到止盈機率:</strong>{" "}
+              {hitTpReasonLabel(direction, hitTpResult.reason)}
             </p>
           )}
         </div>
@@ -280,14 +283,23 @@ export default function ContractCalculatorClient() {
         <div className="card" style={{ background: "#e7f5ff", borderColor: "#339af0" }}>
           <h2 style={{ marginTop: 0 }}>進場勝率 · {pair.base}/{pair.quote}</h2>
           <p style={{ fontSize: "0.9em", color: "#495057", marginTop: "-8px" }}>交易對 {pairLabel}</p>
-          <p>
+          <p style={{ marginBottom: 4 }}>
             <strong>進場勝率 / 先到止盈機率:</strong>{" "}
-            <span style={{ color: "#1864ab", fontWeight: 600 }}>
-              {(hitTpResult.probability * 100).toFixed(2)}%
+            <span
+              style={{
+                color: "#1864ab",
+                fontWeight: 700,
+                fontSize: "1.35em",
+                letterSpacing: "0.02em",
+              }}
+            >
+              {winRatePercentLabel(hitTpResult.probability)}
             </span>
           </p>
           <p style={{ fontSize: "0.9em", color: "#495057" }}>
-            風險距離 R={hitTpResult.riskDistance.toFixed(2)} {quote} · 報酬距離 G={hitTpResult.rewardDistance.toFixed(2)} {quote} · 公式 R/(R+G)（隨機漫步假設）
+            風險距離 R={hitTpResult.riskDistance.toFixed(2)} {quote} · 報酬距離 G=
+            {hitTpResult.rewardDistance.toFixed(2)} {quote} · 公式 R/(R+G)
+            {hitTpResult.usedTargetAsTp ? " · 止盈暫以目標價計算" : ""}
           </p>
           <p style={{ fontSize: "0.85em", color: "#868e96", marginBottom: 0 }}>
             僅依開倉價與止盈/止損計算；填入保證金與槓桿後可一併查看強平價與盈虧。
@@ -295,10 +307,11 @@ export default function ContractCalculatorClient() {
         </div>
       )}
 
-      {!result && hitTpResult && !hitTpResult.ok && hasTpSlAttempt && (
+      {!result && hitTpResult && !hitTpResult.ok && (
         <div className="card" style={{ background: "#fff5f5", borderColor: "#fa5252" }}>
           <p style={{ margin: 0, color: "#c92a2a" }}>
-            <strong>進場勝率 / 先到止盈機率:</strong> {hitTpReasonLabel(hitTpResult.reason)}
+            <strong>進場勝率 / 先到止盈機率:</strong>{" "}
+            {hitTpReasonLabel(direction, hitTpResult.reason)}
           </p>
         </div>
       )}
