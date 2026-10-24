@@ -1,0 +1,328 @@
+{
+  "generatedAt": "2026-10-24T22:49:08Z",
+  "source": "see_journal-2.jsonl",
+  "filter": "rows with numeric win 0–100 plus entry/sl/tp",
+  "nWinRows": 413,
+  "nApprox1to1RR": 412,
+  "minSymbolSamples": 3,
+  "disclaimerZh": "SEE journal 樣本參考勝率（多為模型 win 欄位，非保證；journal 設定多為約 1R:1R）",
+  "overall": {
+    "n": 413,
+    "meanWin": 50.69,
+    "medianWin": 61.6
+  },
+  "byDirection": {
+    "long": {
+      "n": 214,
+      "meanWin": 51.49,
+      "medianWin": 61.25
+    },
+    "short": {
+      "n": 199,
+      "meanWin": 49.82,
+      "medianWin": 62.8
+    }
+  },
+  "bySymbolDirection": {
+    "CAPAPPUSDT|long": {
+      "n": 15,
+      "meanWin": 0.0,
+      "medianWin": 0.0
+    },
+    "GRASSUSDT|short": {
+      "n": 15,
+      "meanWin": 71.3,
+      "medianWin": 72.9
+    },
+    "PLUMEUSDT|short": {
+      "n": 13,
+      "meanWin": 67.11,
+      "medianWin": 71.1
+    },
+    "FILUSDT|short": {
+      "n": 12,
+      "meanWin": 61.5,
+      "medianWin": 61.85
+    },
+    "ZROUSDT|long": {
+      "n": 11,
+      "meanWin": 70.01,
+      "medianWin": 69.4
+    },
+    "MERLUSDT|short": {
+      "n": 9,
+      "meanWin": 28.73,
+      "medianWin": 16.7
+    },
+    "FLUIDUSDT|short": {
+      "n": 9,
+      "meanWin": 50.93,
+      "medianWin": 71.8
+    },
+    "CTKUSDT|short": {
+      "n": 8,
+      "meanWin": 29.29,
+      "medianWin": 25.2
+    },
+    "AEROUSDT|long": {
+      "n": 7,
+      "meanWin": 54.74,
+      "medianWin": 55.5
+    },
+    "LUMIAUSDT|long": {
+      "n": 7,
+      "meanWin": 44.77,
+      "medianWin": 44.5
+    },
+    "REDUSDT|long": {
+      "n": 7,
+      "meanWin": 42.11,
+      "medianWin": 49.4
+    },
+    "WUSDT|long": {
+      "n": 7,
+      "meanWin": 65.1,
+      "medianWin": 70.2
+    },
+    "BTWUSDT|short": {
+      "n": 7,
+      "meanWin": 46.59,
+      "medianWin": 54.3
+    },
+    "CYBERUSDT|long": {
+      "n": 6,
+      "meanWin": 42.53,
+      "medianWin": 52.75
+    },
+    "SXTUSDT|short": {
+      "n": 6,
+      "meanWin": 0.0,
+      "medianWin": 0.0
+    },
+    "WUSDT|short": {
+      "n": 6,
+      "meanWin": 72.75,
+      "medianWin": 72.75
+    },
+    "ICPUSDT|short": {
+      "n": 6,
+      "meanWin": 51.1,
+      "medianWin": 51.1
+    },
+    "METISUSDT|short": {
+      "n": 6,
+      "meanWin": 67.25,
+      "medianWin": 67.25
+    },
+    "AXLUSDT|short": {
+      "n": 6,
+      "meanWin": 67.4,
+      "medianWin": 67.4
+    },
+    "SYRUPUSDT|short": {
+      "n": 6,
+      "meanWin": 56.4,
+      "medianWin": 56.4
+    },
+    "XTZUSDT|short": {
+      "n": 6,
+      "meanWin": 54.3,
+      "medianWin": 54.3
+    },
+    "LINKUSDT|short": {
+      "n": 6,
+      "meanWin": 69.1,
+      "medianWin": 69.1
+    },
+    "BATUSDT|short": {
+      "n": 6,
+      "meanWin": 50.55,
+      "medianWin": 50.55
+    },
+    "MERLUSDT|long": {
+      "n": 5,
+      "meanWin": 53.28,
+      "medianWin": 52.9
+    },
+    "RENDERUSDT|long": {
+      "n": 5,
+      "meanWin": 72.7,
+      "medianWin": 72.6
+    },
+    "APRUSDT|long": {
+      "n": 4,
+      "meanWin": 68.5,
+      "medianWin": 69.4
+    },
+    "C98USDT|long": {
+      "n": 4,
+      "meanWin": 65.28,
+      "medianWin": 65.2
+    },
+    "QNTUSDT|long": {
+      "n": 4,
+      "meanWin": 64.28,
+      "medianWin": 63.15
+    },
+    "ARKUSDT|long": {
+      "n": 4,
+      "meanWin": 57.2,
+      "medianWin": 57.2
+    },
+    "ENAUSDT|long": {
+      "n": 4,
+      "meanWin": 43.33,
+      "medianWin": 42.35
+    },
+    "PYTHUSDT|long": {
+      "n": 4,
+      "meanWin": 67.3,
+      "medianWin": 72.2
+    },
+    "MUBARAKUSDT|short": {
+      "n": 4,
+      "meanWin": 59.88,
+      "medianWin": 67.3
+    },
+    "DOSUSDT|long": {
+      "n": 4,
+      "meanWin": 67.7,
+      "medianWin": 72.2
+    },
+    "RSRUSDT|long": {
+      "n": 4,
+      "meanWin": 74.78,
+      "medianWin": 74.25
+    },
+    "NEARUSDT|short": {
+      "n": 4,
+      "meanWin": 72.48,
+      "medianWin": 74.9
+    },
+    "MAGICUSDT|long": {
+      "n": 4,
+      "meanWin": 75.4,
+      "medianWin": 78.8
+    },
+    "CTKUSDT|long": {
+      "n": 4,
+      "meanWin": 72.3,
+      "medianWin": 96.4
+    },
+    "SXTUSDT|long": {
+      "n": 4,
+      "meanWin": 65.25,
+      "medianWin": 87.0
+    },
+    "PONSUSDT|long": {
+      "n": 3,
+      "meanWin": 63.87,
+      "medianWin": 65.2
+    },
+    "CHIPUSDT|long": {
+      "n": 3,
+      "meanWin": 57.97,
+      "medianWin": 57.2
+    },
+    "LAUSDT|long": {
+      "n": 3,
+      "meanWin": 58.07,
+      "medianWin": 58.3
+    },
+    "METISUSDT|long": {
+      "n": 3,
+      "meanWin": 44.47,
+      "medianWin": 66.7
+    },
+    "LABUSDT|short": {
+      "n": 3,
+      "meanWin": 8.9,
+      "medianWin": 0.0
+    },
+    "USUSDT|long": {
+      "n": 3,
+      "meanWin": 61.37,
+      "medianWin": 51.3
+    },
+    "MINAUSDT|long": {
+      "n": 3,
+      "meanWin": 65.73,
+      "medianWin": 64.9
+    },
+    "RSRUSDT|short": {
+      "n": 3,
+      "meanWin": 43.77,
+      "medianWin": 63.7
+    },
+    "MANTAUSDT|short": {
+      "n": 3,
+      "meanWin": 34.37,
+      "medianWin": 51.3
+    },
+    "ONUSDT|long": {
+      "n": 3,
+      "meanWin": 0.0,
+      "medianWin": 0.0
+    },
+    "TWTUSDT|long": {
+      "n": 3,
+      "meanWin": 0.0,
+      "medianWin": 0.0
+    },
+    "THEUSDT|short": {
+      "n": 3,
+      "meanWin": 0.0,
+      "medianWin": 0.0
+    },
+    "CAPAPPUSDT|short": {
+      "n": 3,
+      "meanWin": 0.0,
+      "medianWin": 0.0
+    },
+    "STRKUSDT|short": {
+      "n": 3,
+      "meanWin": 80.0,
+      "medianWin": 80.0
+    },
+    "VELVETUSDT|short": {
+      "n": 3,
+      "meanWin": 0.0,
+      "medianWin": 0.0
+    },
+    "INJUSDT|short": {
+      "n": 3,
+      "meanWin": 66.4,
+      "medianWin": 66.4
+    },
+    "TUSDT|short": {
+      "n": 3,
+      "meanWin": 63.3,
+      "medianWin": 63.3
+    },
+    "RENDERUSDT|short": {
+      "n": 3,
+      "meanWin": 62.8,
+      "medianWin": 62.8
+    },
+    "0GUSDT|short": {
+      "n": 3,
+      "meanWin": 68.8,
+      "medianWin": 68.8
+    },
+    "EPICUSDT|short": {
+      "n": 3,
+      "meanWin": 60.7,
+      "medianWin": 60.7
+    },
+    "APEUSDT|short": {
+      "n": 3,
+      "meanWin": 64.1,
+      "medianWin": 64.1
+    },
+    "MEGAUSDT|short": {
+      "n": 3,
+      "meanWin": 65.5,
+      "medianWin": 65.5
+    }
+  }
+}

@@ -10,6 +10,11 @@ import {
   hitTpReasonLabel,
   resolveHitTpWinRate,
 } from "@/lib/hitTpProbability";
+import {
+  lookupSeeJournalWin,
+  seeJournalDisclaimer,
+  seeJournalMeta,
+} from "@/lib/seeJournalWinStats";
 
 export default function ContractCalculatorClient() {
   const [pairs, setPairs] = useState<ContractPair[]>(FALLBACK_USDTM_PAIRS);
@@ -137,8 +142,77 @@ export default function ContractCalculatorClient() {
     targetRaw: targetPrice,
   });
 
+  const journalWin = lookupSeeJournalWin(pairLabel, direction);
+  const journalMeta = seeJournalMeta();
+
   const winRatePercentLabel = (probability: number) =>
     `${(probability * 100).toFixed(2)}%`;
+
+  const renderWinRateBlock = (opts?: { compactNote?: string }) => (
+    <>
+      {hitTpResult?.ok && (
+        <>
+          <p style={{ marginBottom: 4 }}>
+            <strong>公式勝率 / 先到止盈機率:</strong>{" "}
+            <span
+              style={{
+                color: "#1864ab",
+                fontWeight: 700,
+                fontSize: "1.35em",
+                letterSpacing: "0.02em",
+              }}
+            >
+              {winRatePercentLabel(hitTpResult.probability)}
+            </span>
+          </p>
+          <p style={{ fontSize: "0.9em", color: "#495057", marginTop: 0 }}>
+            風險距離 R={hitTpResult.riskDistance.toFixed(2)} {quote} · 報酬距離 G=
+            {hitTpResult.rewardDistance.toFixed(2)} {quote} · 隨機漫步 R/(R+G)
+            {hitTpResult.usedTargetAsTp ? " · 止盈暫以目標價計算" : ""}
+          </p>
+          {journalWin && (
+            <>
+              <p style={{ marginBottom: 4, marginTop: 12 }}>
+                <strong>SEE journal 參考勝率:</strong>{" "}
+                <span
+                  style={{
+                    color: "#2b8a3e",
+                    fontWeight: 700,
+                    fontSize: "1.35em",
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  {journalWin.meanWin.toFixed(1)}%
+                </span>
+              </p>
+              <p style={{ fontSize: "0.9em", color: "#495057", marginTop: 0 }}>
+                {journalWin.labelZh} · 樣本 n={journalWin.n} · 中位數{" "}
+                {journalWin.medianWin.toFixed(1)}%
+                {journalWin.scope !== "symbol_direction"
+                  ? ` · 此幣種無足夠專屬樣本，改用${journalWin.labelZh}`
+                  : ""}
+              </p>
+              <p style={{ fontSize: "0.85em", color: "#868e96", marginTop: 4 }}>
+                {seeJournalDisclaimer()}（彙總 {journalMeta.nWinRows} 筆有 win
+                欄位的紀錄；約 {journalMeta.nApprox1to1RR} 筆為 1R:1R 設定）
+              </p>
+            </>
+          )}
+          {opts?.compactNote && (
+            <p style={{ fontSize: "0.85em", color: "#868e96", marginBottom: 0 }}>
+              {opts.compactNote}
+            </p>
+          )}
+        </>
+      )}
+      {hitTpResult && !hitTpResult.ok && (
+        <p style={{ color: "#c92a2a" }}>
+          <strong>進場勝率 / 先到止盈機率:</strong>{" "}
+          {hitTpReasonLabel(direction, hitTpResult.reason)}
+        </p>
+      )}
+    </>
+  );
 
   const pairStatusNote = pairsLoading
     ? "正在載入幣安 USDT-M 永續交易對…"
@@ -248,34 +322,7 @@ export default function ContractCalculatorClient() {
               <p><strong>報酬率 ROE:</strong> <span style={{ color: result.roe! >= 0 ? "green" : "red" }}>{result.roe!.toFixed(2)}%</span></p>
             </>
           )}
-          {hitTpResult?.ok && (
-            <>
-              <p style={{ marginBottom: 4 }}>
-                <strong>進場勝率 / 先到止盈機率:</strong>{" "}
-                <span
-                  style={{
-                    color: "#1864ab",
-                    fontWeight: 700,
-                    fontSize: "1.35em",
-                    letterSpacing: "0.02em",
-                  }}
-                >
-                  {winRatePercentLabel(hitTpResult.probability)}
-                </span>
-              </p>
-              <p style={{ fontSize: "0.9em", color: "#495057", marginTop: 0 }}>
-                風險距離 R={hitTpResult.riskDistance.toFixed(2)} {quote} · 報酬距離 G=
-                {hitTpResult.rewardDistance.toFixed(2)} {quote} · 公式 R/(R+G)
-                {hitTpResult.usedTargetAsTp ? " · 止盈暫以目標價計算" : ""}
-              </p>
-            </>
-          )}
-          {hitTpResult && !hitTpResult.ok && (
-            <p style={{ color: "#c92a2a" }}>
-              <strong>進場勝率 / 先到止盈機率:</strong>{" "}
-              {hitTpReasonLabel(direction, hitTpResult.reason)}
-            </p>
-          )}
+          {renderWinRateBlock()}
         </div>
       )}
 
@@ -283,36 +330,15 @@ export default function ContractCalculatorClient() {
         <div className="card" style={{ background: "#e7f5ff", borderColor: "#339af0" }}>
           <h2 style={{ marginTop: 0 }}>進場勝率 · {pair.base}/{pair.quote}</h2>
           <p style={{ fontSize: "0.9em", color: "#495057", marginTop: "-8px" }}>交易對 {pairLabel}</p>
-          <p style={{ marginBottom: 4 }}>
-            <strong>進場勝率 / 先到止盈機率:</strong>{" "}
-            <span
-              style={{
-                color: "#1864ab",
-                fontWeight: 700,
-                fontSize: "1.35em",
-                letterSpacing: "0.02em",
-              }}
-            >
-              {winRatePercentLabel(hitTpResult.probability)}
-            </span>
-          </p>
-          <p style={{ fontSize: "0.9em", color: "#495057" }}>
-            風險距離 R={hitTpResult.riskDistance.toFixed(2)} {quote} · 報酬距離 G=
-            {hitTpResult.rewardDistance.toFixed(2)} {quote} · 公式 R/(R+G)
-            {hitTpResult.usedTargetAsTp ? " · 止盈暫以目標價計算" : ""}
-          </p>
-          <p style={{ fontSize: "0.85em", color: "#868e96", marginBottom: 0 }}>
-            僅依開倉價與止盈/止損計算；填入保證金與槓桿後可一併查看強平價與盈虧。
-          </p>
+          {renderWinRateBlock({
+            compactNote: "僅依開倉價與止盈/止損計算；填入保證金與槓桿後可一併查看強平價與盈虧。",
+          })}
         </div>
       )}
 
       {!result && hitTpResult && !hitTpResult.ok && (
         <div className="card" style={{ background: "#fff5f5", borderColor: "#fa5252" }}>
-          <p style={{ margin: 0, color: "#c92a2a" }}>
-            <strong>進場勝率 / 先到止盈機率:</strong>{" "}
-            {hitTpReasonLabel(direction, hitTpResult.reason)}
-          </p>
+          {renderWinRateBlock()}
         </div>
       )}
     </>
