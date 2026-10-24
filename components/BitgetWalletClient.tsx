@@ -32,8 +32,8 @@ export default function BitgetWalletClient() {
 
   return (
     <main style={{ maxWidth: 520, margin: "0 auto" }}>
-      <h1 style={{ fontSize: "1.6em" }}>Bitget Wallet｜綁定邀請碼最高可領 $20</h1>
-      <p style={{ color: "#666", marginTop: 0 }}>獎勵以官方規則為準。</p>
+      <h1 style={{ fontSize: "1.6em" }}>Bitget Wallet｜下載錢包、開卡消費最高 3% 回饋</h1>
+      <p style={{ color: "#666", marginTop: 0 }}>新卡友完成指定交易最高可領 $20，以官方規則為準</p>
       <img src="/bitget-wallet-invite.jpg" alt="Bitget Wallet 邀請碼 iCLnZD7K" style={{ width: "100%", borderRadius: 16 }} />
 
       <div className="card" style={{ textAlign: "center", margin: "16px 0" }}>
@@ -46,6 +46,20 @@ export default function BitgetWalletClient() {
         🎁 用邀請連結開始（已帶入邀請碼）
       </a>
       {os === "android" ? <>{storeAnd}{storeIos}</> : <>{storeIos}{storeAnd}</>}
+
+      <div className="card" style={{ marginTop: 20 }}>
+        <h2 style={{ marginTop: 0 }}>Bitget Wallet Card 重點</h2>
+        <ul style={{ lineHeight: 1.9, paddingLeft: 20, margin: "12px 0" }}>
+          <li>台灣可申請虛擬卡與實體卡</li>
+          <li>預設 2% 回饋，新卡友或當月消費滿 $200 可升級 3%（當月及下月，有每月上限）</li>
+          <li>無月費年費、儲值免費</li>
+          <li>新台幣等非美元消費另收 1.7% 外幣手續費</li>
+          <li>實體卡申請費 49 USD</li>
+        </ul>
+        <p style={{ fontSize: "0.9em", margin: "12px 0 0" }}>
+          <a href="https://web3.bitget.com/helpCenter/867" target="_blank" rel="noopener">📖 官方回饋規則</a>
+        </p>
+      </div>
 
       <h2>3 步驟開始</h2>
       <ol style={{ lineHeight: 1.9, paddingLeft: 20 }}>
