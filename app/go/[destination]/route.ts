@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 // Destination configurations
 const DESTINATIONS = {
   toobit: {
-    url: "https://www.toobit.com/en-US/register/invite?referralCode=8fUBLg",
+    url: "https://www.toobit.com/t/8fUBLg",
     allowedSources: ["fb", "threads", "ig"],
   },
   bitget: {
-    url: "/bitget-wallet",
+    url: "https://web3.bitget.com/share/2CWLpy?inviteCode=iCLnZD7K",
     allowedSources: ["fb", "threads", "ig", "square"],
   },
 } as const;
