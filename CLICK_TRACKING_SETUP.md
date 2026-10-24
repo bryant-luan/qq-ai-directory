@@ -7,11 +7,11 @@ This site includes click-tracked redirect routes at `/go/<destination>?src=<sour
 ## Routes
 
 1. **Toobit**: `/go/toobit?src=fb|threads|ig`
-   - Redirects to: `https://www.toobit.com/en-US/register/invite?referralCode=8fUBLg`
+   - Redirects to: `https://www.toobit.com/t/8fUBLg`
    - Allowed sources: fb, threads, ig
 
 2. **Bitget**: `/go/bitget?src=fb|threads|ig|square`
-   - Redirects to: `/bitget-wallet` (internal page with invite code iCLnZD7K)
+   - Redirects to: `https://web3.bitget.com/share/2CWLpy?inviteCode=iCLnZD7K`
    - Allowed sources: fb, threads, ig, square
 
 Any unknown or missing `src` parameter is recorded as "other".
