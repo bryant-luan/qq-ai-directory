@@ -34,7 +34,6 @@ export default function BitgetWalletClient() {
     <main style={{ maxWidth: 520, margin: "0 auto" }}>
       <h1 style={{ fontSize: "1.6em" }}>Bitget Wallet｜下載錢包、開卡消費最高 3% 回饋</h1>
       <p style={{ color: "#666", marginTop: 0 }}>新卡友完成指定交易最高可領 $20，以官方規則為準</p>
-      <img src="/bitget-wallet-invite.jpg" alt="Bitget Wallet 邀請碼 iCLnZD7K" style={{ width: "100%", borderRadius: 16 }} />
 
       <div className="card" style={{ textAlign: "center", margin: "16px 0" }}>
         <div style={{ color: "#666" }}>我的邀請碼</div>
