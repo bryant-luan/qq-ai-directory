@@ -66,7 +66,7 @@ export default function ContractCalculatorPage() {
     <main>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLD) }} />
       <h1>合約計算機 / 爆倉價(強平價)計算</h1>
-      <p>快速計算加密貨幣合約交易的預估強平價、盈虧、報酬率與手續費。支援做多/做空、逐倉/全倉模式。</p>
+      <p>快速計算加密貨幣合約交易的預估強平價、盈虧、報酬率與手續費。可選擇主要幣種交易對（如 BTCUSDT）、支援做多/做空、逐倉/全倉模式。</p>
 
       <div className="card" style={{ background: "#fff3cd", borderColor: "#ffc107", marginBottom: "20px" }}>
         <p style={{ margin: 0, fontSize: "0.95em", lineHeight: "1.6" }}>

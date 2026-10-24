@@ -2,7 +2,20 @@
 import { useState } from "react";
 import { hitTpBeforeSlProbability } from "@/lib/hitTpProbability";
 
+/** Static major perpetual pairs (USDT-quoted). Labeling only — no live prices. */
+const CONTRACT_PAIRS = [
+  { id: "BTCUSDT", base: "BTC", quote: "USDT" },
+  { id: "ETHUSDT", base: "ETH", quote: "USDT" },
+  { id: "SOLUSDT", base: "SOL", quote: "USDT" },
+  { id: "BNBUSDT", base: "BNB", quote: "USDT" },
+  { id: "XRPUSDT", base: "XRP", quote: "USDT" },
+  { id: "DOGEUSDT", base: "DOGE", quote: "USDT" },
+] as const;
+
+type PairId = (typeof CONTRACT_PAIRS)[number]["id"];
+
 export default function ContractCalculatorClient() {
+  const [pairId, setPairId] = useState<PairId>("BTCUSDT");
   const [direction, setDirection] = useState<"long" | "short">("long");
   const [entryPrice, setEntryPrice] = useState("");
   const [leverage, setLeverage] = useState("10");
@@ -15,6 +28,10 @@ export default function ContractCalculatorClient() {
   const [targetPrice, setTargetPrice] = useState("");
   const [takeProfitPrice, setTakeProfitPrice] = useState("");
   const [stopLossPrice, setStopLossPrice] = useState("");
+
+  const pair = CONTRACT_PAIRS.find((p) => p.id === pairId) ?? CONTRACT_PAIRS[0];
+  const quote = pair.quote;
+  const pairLabel = pair.id;
 
   const calculate = () => {
     const entry = parseFloat(entryPrice);
@@ -104,6 +121,21 @@ export default function ContractCalculatorClient() {
     <>
       <div className="card">
         <h2 style={{ marginTop: 0 }}>計算參數</h2>
+
+        <div style={{ marginBottom: "16px" }}>
+          <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>幣種 / 交易對 Trading Pair</label>
+          <select
+            value={pairId}
+            onChange={(e) => setPairId(e.target.value as PairId)}
+            style={{ width: "100%", padding: "8px", fontSize: "16px" }}
+          >
+            {CONTRACT_PAIRS.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.base}/{p.quote} ({p.id})
+              </option>
+            ))}
+          </select>
+        </div>
         
         <div style={{ marginBottom: "16px" }}>
           <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>方向 Direction</label>
@@ -114,7 +146,7 @@ export default function ContractCalculatorClient() {
         </div>
 
         <div style={{ marginBottom: "16px" }}>
-          <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>開倉價格 Entry Price (USDT)</label>
+          <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>開倉價格 Entry Price ({quote}) · {pairLabel}</label>
           <input type="number" value={entryPrice} onChange={(e) => setEntryPrice(e.target.value)} placeholder="例: 50000" style={{ width: "100%", padding: "8px", fontSize: "16px" }} />
         </div>
 
@@ -133,12 +165,12 @@ export default function ContractCalculatorClient() {
 
         {inputMode === "margin" ? (
           <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>保證金 Margin (USDT)</label>
+            <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>保證金 Margin ({quote}) · {pairLabel}</label>
             <input type="number" value={margin} onChange={(e) => setMargin(e.target.value)} placeholder="例: 1000" style={{ width: "100%", padding: "8px", fontSize: "16px" }} />
           </div>
         ) : (
           <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>倉位大小 Position Size (USDT)</label>
+            <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>倉位大小 Position Size ({quote}) · {pairLabel}</label>
             <input type="number" value={positionSize} onChange={(e) => setPositionSize(e.target.value)} placeholder="例: 10000" style={{ width: "100%", padding: "8px", fontSize: "16px" }} />
           </div>
         )}
@@ -162,31 +194,32 @@ export default function ContractCalculatorClient() {
         </div>
 
         <div style={{ marginBottom: "16px" }}>
-          <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>目標價格 Target Price (USDT, 選填)</label>
+          <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>目標價格 Target Price ({quote}, 選填) · {pairLabel}</label>
           <input type="number" value={targetPrice} onChange={(e) => setTargetPrice(e.target.value)} placeholder="例: 55000" style={{ width: "100%", padding: "8px", fontSize: "16px" }} />
         </div>
 
         <div style={{ marginBottom: "16px" }}>
-          <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>止盈價 Take-Profit (USDT, 選填)</label>
+          <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>止盈價 Take-Profit ({quote}, 選填) · {pairLabel}</label>
           <input type="number" value={takeProfitPrice} onChange={(e) => setTakeProfitPrice(e.target.value)} placeholder={direction === "long" ? "例: 52000" : "例: 48000"} style={{ width: "100%", padding: "8px", fontSize: "16px" }} />
         </div>
 
         <div style={{ marginBottom: "16px" }}>
-          <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>止損價 Stop-Loss (USDT, 選填)</label>
+          <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>止損價 Stop-Loss ({quote}, 選填) · {pairLabel}</label>
           <input type="number" value={stopLossPrice} onChange={(e) => setStopLossPrice(e.target.value)} placeholder={direction === "long" ? "例: 49000" : "例: 51000"} style={{ width: "100%", padding: "8px", fontSize: "16px" }} />
         </div>
       </div>
 
       {result && (
         <div className="card" style={{ background: "#e7f5ff", borderColor: "#339af0" }}>
-          <h2 style={{ marginTop: 0 }}>計算結果</h2>
-          <p><strong>預估強平價 Liquidation Price:</strong> {result.liquidationPrice.toFixed(2)} USDT</p>
-          <p><strong>倉位大小 Position Size:</strong> {result.positionSize.toFixed(2)} USDT</p>
-          <p><strong>保證金 Margin:</strong> {result.margin.toFixed(2)} USDT</p>
-          <p><strong>預估手續費 Fee (開+平):</strong> {result.totalFee.toFixed(2)} USDT</p>
+          <h2 style={{ marginTop: 0 }}>計算結果 · {pair.base}/{pair.quote}</h2>
+          <p style={{ fontSize: "0.9em", color: "#495057", marginTop: "-8px" }}>交易對 {pairLabel}（價格與金額單位：{quote}）</p>
+          <p><strong>預估強平價 Liquidation Price:</strong> {result.liquidationPrice.toFixed(2)} {quote}</p>
+          <p><strong>倉位大小 Position Size:</strong> {result.positionSize.toFixed(2)} {quote}</p>
+          <p><strong>保證金 Margin:</strong> {result.margin.toFixed(2)} {quote}</p>
+          <p><strong>預估手續費 Fee (開+平):</strong> {result.totalFee.toFixed(2)} {quote}</p>
           {result.pnl !== null && (
             <>
-              <p><strong>目標盈虧 PnL (含手續費):</strong> <span style={{ color: result.pnl >= 0 ? "green" : "red" }}>{result.pnl.toFixed(2)} USDT</span></p>
+              <p><strong>目標盈虧 PnL (含手續費):</strong> <span style={{ color: result.pnl >= 0 ? "green" : "red" }}>{result.pnl.toFixed(2)} {quote}</span></p>
               <p><strong>報酬率 ROE:</strong> <span style={{ color: result.roe! >= 0 ? "green" : "red" }}>{result.roe!.toFixed(2)}%</span></p>
             </>
           )}
@@ -199,7 +232,7 @@ export default function ContractCalculatorClient() {
                 </span>
               </p>
               <p style={{ fontSize: "0.9em", color: "#495057", marginTop: "-8px" }}>
-                風險距離 R={hitTpResult.riskDistance.toFixed(2)} · 報酬距離 G={hitTpResult.rewardDistance.toFixed(2)} · 公式 R/(R+G)（隨機漫步假設）
+                風險距離 R={hitTpResult.riskDistance.toFixed(2)} {quote} · 報酬距離 G={hitTpResult.rewardDistance.toFixed(2)} {quote} · 公式 R/(R+G)（隨機漫步假設）
               </p>
             </>
           )}
@@ -213,7 +246,8 @@ export default function ContractCalculatorClient() {
 
       {!result && hitTpResult?.ok && (
         <div className="card" style={{ background: "#e7f5ff", borderColor: "#339af0" }}>
-          <h2 style={{ marginTop: 0 }}>進場勝率</h2>
+          <h2 style={{ marginTop: 0 }}>進場勝率 · {pair.base}/{pair.quote}</h2>
+          <p style={{ fontSize: "0.9em", color: "#495057", marginTop: "-8px" }}>交易對 {pairLabel}</p>
           <p>
             <strong>進場勝率 / 先到止盈機率:</strong>{" "}
             <span style={{ color: "#1864ab", fontWeight: 600 }}>
@@ -221,7 +255,7 @@ export default function ContractCalculatorClient() {
             </span>
           </p>
           <p style={{ fontSize: "0.9em", color: "#495057" }}>
-            風險距離 R={hitTpResult.riskDistance.toFixed(2)} · 報酬距離 G={hitTpResult.rewardDistance.toFixed(2)} · 公式 R/(R+G)（隨機漫步假設）
+            風險距離 R={hitTpResult.riskDistance.toFixed(2)} {quote} · 報酬距離 G={hitTpResult.rewardDistance.toFixed(2)} {quote} · 公式 R/(R+G)（隨機漫步假設）
           </p>
           <p style={{ fontSize: "0.85em", color: "#868e96", marginBottom: 0 }}>
             僅依開倉價與止盈/止損計算；填入保證金與槓桿後可一併查看強平價與盈虧。
