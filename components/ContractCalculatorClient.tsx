@@ -1,21 +1,19 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import PairCombobox from "@/components/PairCombobox";
+import {
+  FALLBACK_USDTM_PAIRS,
+  preferDefaultPair,
+  type ContractPair,
+} from "@/lib/binanceUsdtmPairs";
 import { hitTpBeforeSlProbability } from "@/lib/hitTpProbability";
 
-/** Static major perpetual pairs (USDT-quoted). Labeling only — no live prices. */
-const CONTRACT_PAIRS = [
-  { id: "BTCUSDT", base: "BTC", quote: "USDT" },
-  { id: "ETHUSDT", base: "ETH", quote: "USDT" },
-  { id: "SOLUSDT", base: "SOL", quote: "USDT" },
-  { id: "BNBUSDT", base: "BNB", quote: "USDT" },
-  { id: "XRPUSDT", base: "XRP", quote: "USDT" },
-  { id: "DOGEUSDT", base: "DOGE", quote: "USDT" },
-] as const;
-
-type PairId = (typeof CONTRACT_PAIRS)[number]["id"];
-
 export default function ContractCalculatorClient() {
-  const [pairId, setPairId] = useState<PairId>("BTCUSDT");
+  const [pairs, setPairs] = useState<ContractPair[]>(FALLBACK_USDTM_PAIRS);
+  const [pairsLoading, setPairsLoading] = useState(true);
+  const [pairsFallback, setPairsFallback] = useState(false);
+  const [pairsCount, setPairsCount] = useState(FALLBACK_USDTM_PAIRS.length);
+  const [pairId, setPairId] = useState("BTCUSDT");
   const [direction, setDirection] = useState<"long" | "short">("long");
   const [entryPrice, setEntryPrice] = useState("");
   const [leverage, setLeverage] = useState("10");
@@ -29,7 +27,39 @@ export default function ContractCalculatorClient() {
   const [takeProfitPrice, setTakeProfitPrice] = useState("");
   const [stopLossPrice, setStopLossPrice] = useState("");
 
-  const pair = CONTRACT_PAIRS.find((p) => p.id === pairId) ?? CONTRACT_PAIRS[0];
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/binance-usdtm-pairs");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = (await res.json()) as {
+          pairs?: ContractPair[];
+          count?: number;
+          fallback?: boolean;
+        };
+        if (cancelled) return;
+        const next = Array.isArray(data.pairs) && data.pairs.length > 0 ? data.pairs : FALLBACK_USDTM_PAIRS;
+        setPairs(next);
+        setPairsCount(data.count ?? next.length);
+        setPairsFallback(Boolean(data.fallback));
+        setPairId((prev) => preferDefaultPair(next, prev || "BTCUSDT"));
+      } catch {
+        if (cancelled) return;
+        setPairs(FALLBACK_USDTM_PAIRS);
+        setPairsCount(FALLBACK_USDTM_PAIRS.length);
+        setPairsFallback(true);
+        setPairId((prev) => preferDefaultPair(FALLBACK_USDTM_PAIRS, prev || "BTCUSDT"));
+      } finally {
+        if (!cancelled) setPairsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const pair = pairs.find((p) => p.id === pairId) ?? pairs[0] ?? FALLBACK_USDTM_PAIRS[0];
   const quote = pair.quote;
   const pairLabel = pair.id;
 
@@ -117,6 +147,12 @@ export default function ContractCalculatorClient() {
     return "請輸入有效的開倉價、止盈與止損";
   };
 
+  const pairStatusNote = pairsLoading
+    ? "正在載入幣安 USDT-M 永續交易對…"
+    : pairsFallback
+      ? `目前使用離線清單（${pairsCount} 個）；即時 exchangeInfo 暫時不可用`
+      : `幣安 USDT-M 永續 · 共 ${pairsCount} 個（可搜尋）`;
+
   return (
     <>
       <div className="card">
@@ -124,17 +160,13 @@ export default function ContractCalculatorClient() {
 
         <div style={{ marginBottom: "16px" }}>
           <label style={{ display: "block", marginBottom: "4px", fontWeight: 500 }}>幣種 / 交易對 Trading Pair</label>
-          <select
+          <PairCombobox
+            pairs={pairs}
             value={pairId}
-            onChange={(e) => setPairId(e.target.value as PairId)}
-            style={{ width: "100%", padding: "8px", fontSize: "16px" }}
-          >
-            {CONTRACT_PAIRS.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.base}/{p.quote} ({p.id})
-              </option>
-            ))}
-          </select>
+            onChange={setPairId}
+            loading={pairsLoading}
+            statusNote={pairStatusNote}
+          />
         </div>
         
         <div style={{ marginBottom: "16px" }}>
