@@ -49,7 +49,7 @@ export default function BitgetWalletClient() {
         Bitget Wallet Card 開卡教學
       </h1>
       <p style={{ color: "#666", marginTop: 0, fontSize: "1.05em" }}>
-        邀請碼 <strong style={{ color: "#0096a3" }}>{CODE}</strong>｜活動期間 2024/10/29–11/30 前 1,000 名開卡享 15 USDT 回饋
+        邀請碼 <strong style={{ color: "#0096a3" }}>{CODE}</strong>｜活動期間 2026/10/29–2026/11/30 前 1,000 名開卡享 15 USDT 回饋
       </p>
 
       <div className="card" style={{ background: "#00c2d1", borderColor: "#00a3b0", marginTop: "20px", padding: "24px" }}>
@@ -60,7 +60,7 @@ export default function BitgetWalletClient() {
           BitoPro 是台灣合法合規的加密貨幣交易所，支援新台幣入金
         </p>
         <a 
-          href="/go/bitopro?src=linktree" 
+          href="/go/bitopro?src=site" 
           target="_blank" 
           rel="noopener" 
           style={{ 
@@ -91,7 +91,7 @@ export default function BitgetWalletClient() {
           <p style={{ margin: "8px 0", lineHeight: 1.7 }}>
             點擊下方連結，系統會自動帶入邀請碼，完成錢包註冊。
           </p>
-          <a href="/go/bgw?src=linktree" target="_blank" rel="noopener" style={{ ...btnStyle, background: "#111", border: "2px solid #111", fontSize: "1.15em" }}>
+          <a href="/go/bgw?src=site" target="_blank" rel="noopener" style={{ ...btnStyle, background: "#111", border: "2px solid #111", fontSize: "1.15em" }}>
             🎁 點此開 Bitget Wallet（邀請碼已帶入）
           </a>
         </div>
@@ -145,12 +145,12 @@ export default function BitgetWalletClient() {
 
       <div className="card" style={{ background: "#fff3cd", borderColor: "#ffc107", marginTop: 20 }}>
         <p style={{ margin: 0, fontSize: "0.95em", lineHeight: 1.7 }}>
-          <strong>⚠️ 風險提醒：</strong>加密貨幣價格波動劇烈，可能損失全部本金。本頁含邀請連結，僅供資訊參考，非投資建議。活動期間、獎勵金額與資格條件以 Bitget Wallet 官方公告為準（2024/10/29–11/30 前 1,000 名開卡享 15 USDT）。請自行評估風險並遵守所在地法規。
+          <strong>⚠️ 風險提醒：</strong>加密貨幣價格波動劇烈，可能損失全部本金。本頁含邀請連結，僅供資訊參考，非投資建議。活動期間、獎勵金額與資格條件以 Bitget Wallet 官方公告為準（2026/10/29–2026/11/30 前 1,000 名開卡享 15 USDT）。請自行評估風險並遵守所在地法規。
         </p>
       </div>
 
       <p style={{ fontSize: "0.85em", color: "#999", textAlign: "center", marginTop: "30px" }}>
-        最後更新：2024 年 11 月 5 日
+        最後更新：2026 年 11 月 5 日
       </p>
     </main>
   );
