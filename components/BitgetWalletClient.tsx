@@ -1,77 +1,157 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const CODE = "iCLnZD7K";
-const INVITE = "https://web3.bitget.com/share/2CWLpy?inviteCode=iCLnZD7K";
-const IOS = "https://apps.apple.com/app/id1395301115";
-const ANDROID = "https://play.google.com/store/apps/details?id=com.bitkeep.wallet";
 
-const big = (on: boolean) => ({
-  display: "block", textAlign: "center" as const, padding: "16px", margin: "10px 0",
-  borderRadius: "12px", fontSize: "1.15em", fontWeight: 700, textDecoration: "none",
-  background: on ? "#00c2d1" : "#f1f3f5", color: on ? "#fff" : "#111",
-  border: on ? "2px solid #00a3b0" : "2px solid #dee2e6",
-});
+const stepStyle = {
+  background: "#f8f9fa",
+  border: "2px solid #dee2e6",
+  borderRadius: "12px",
+  padding: "20px",
+  marginBottom: "16px",
+};
+
+const btnStyle = {
+  display: "block",
+  textAlign: "center" as const,
+  padding: "16px 24px",
+  marginTop: "12px",
+  borderRadius: "12px",
+  fontSize: "1.15em",
+  fontWeight: 700,
+  textDecoration: "none",
+  background: "#00c2d1",
+  color: "#fff",
+  border: "2px solid #00a3b0",
+};
 
 export default function BitgetWalletClient() {
-  const [os, setOs] = useState<"ios" | "android" | "other">("other");
   const [copied, setCopied] = useState(false);
-  useEffect(() => {
-    const ua = navigator.userAgent;
-    if (/iPhone|iPad|iPod/i.test(ua)) setOs("ios");
-    else if (/Android/i.test(ua)) setOs("android");
-  }, []);
+  
   const copy = async () => {
-    try { await navigator.clipboard.writeText(CODE); } catch {
-      const t = document.createElement("textarea"); t.value = CODE; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove();
+    try {
+      await navigator.clipboard.writeText(CODE);
+    } catch {
+      const t = document.createElement("textarea");
+      t.value = CODE;
+      document.body.appendChild(t);
+      t.select();
+      document.execCommand("copy");
+      t.remove();
     }
-    setCopied(true); setTimeout(() => setCopied(false), 2000);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
-  const storeIos = <a id="btn-ios" href={IOS} target="_blank" rel="noopener" style={big(os === "ios")}> App Store 下載</a>;
-  const storeAnd = <a id="btn-android" href={ANDROID} target="_blank" rel="noopener" style={big(os === "android")}>▶ Google Play 下載</a>;
 
   return (
-    <main style={{ maxWidth: 520, margin: "0 auto" }}>
-      <h1 style={{ fontSize: "1.6em" }}>Bitget Wallet｜下載錢包、開卡消費最高 3% 回饋</h1>
-      <p style={{ color: "#666", marginTop: 0 }}>新卡友完成指定交易最高可領 $20，以官方規則為準</p>
+    <main style={{ maxWidth: 600, margin: "0 auto" }}>
+      <h1 style={{ fontSize: "1.8em", marginBottom: "8px" }}>
+        Bitget Wallet Card 開卡教學
+      </h1>
+      <p style={{ color: "#666", marginTop: 0, fontSize: "1.05em" }}>
+        邀請碼 <strong style={{ color: "#0096a3" }}>{CODE}</strong>｜活動期間 2026/10/29–2026/11/30 前 1,000 名開卡享 15 USDT 回饋
+      </p>
 
-      <div className="card" style={{ textAlign: "center", margin: "16px 0" }}>
-        <div style={{ color: "#666" }}>我的邀請碼</div>
-        <div style={{ fontSize: "2em", fontWeight: 800, letterSpacing: 2, color: "#0096a3" }}>{CODE}</div>
-        <button onClick={copy} className="btn" style={{ fontSize: "1em", cursor: "pointer" }}>{copied ? "✓ 已複製" : "複製邀請碼"}</button>
+      <div className="card" style={{ background: "#00c2d1", borderColor: "#00a3b0", marginTop: "20px", padding: "24px" }}>
+        <div style={{ fontSize: "1.5em", fontWeight: 700, color: "#fff", marginBottom: "12px", textAlign: "center" }}>
+          ① 先在幣託用台幣買 USDT
+        </div>
+        <p style={{ color: "#fff", margin: "12px 0", lineHeight: 1.7, textAlign: "center" }}>
+          BitoPro 是台灣合法合規的加密貨幣交易所，支援新台幣入金
+        </p>
+        <a 
+          href="/go/bitopro?src=site" 
+          target="_blank" 
+          rel="noopener" 
+          style={{ 
+            display: "block", 
+            textAlign: "center",
+            padding: "18px 24px", 
+            marginTop: "12px",
+            borderRadius: "12px",
+            fontSize: "1.3em",
+            fontWeight: 700,
+            textDecoration: "none",
+            background: "#fff",
+            color: "#00c2d1",
+            border: "3px solid #fff",
+          }}
+        >
+          👉 前往 BitoPro 註冊買 USDT
+        </a>
       </div>
 
-      <a id="btn-invite" href={INVITE} target="_blank" rel="noopener" style={{ ...big(true), background: "#111", border: "2px solid #111", fontSize: "1.25em" }}>
-        🎁 用邀請連結開始（已帶入邀請碼）
-      </a>
-      {os === "android" ? <>{storeAnd}{storeIos}</> : <>{storeIos}{storeAnd}</>}
+      <div className="card" style={{ background: "#f8f9fa", borderColor: "#dee2e6", marginTop: "20px" }}>
+        <h2 style={{ fontSize: "1.4em", marginTop: 0 }}>接下來完成這 2 步驟</h2>
+        
+        <div style={stepStyle}>
+          <div style={{ fontSize: "1.3em", fontWeight: 700, marginBottom: "8px" }}>
+            ② 用邀請連結開 Bitget Wallet（自動帶 {CODE}）
+          </div>
+          <p style={{ margin: "8px 0", lineHeight: 1.7 }}>
+            點擊下方連結，系統會自動帶入邀請碼，完成錢包註冊。
+          </p>
+          <a href="/go/bgw?src=site" target="_blank" rel="noopener" style={{ ...btnStyle, background: "#111", border: "2px solid #111", fontSize: "1.15em" }}>
+            🎁 點此開 Bitget Wallet（邀請碼已帶入）
+          </a>
+        </div>
+
+        <div style={stepStyle}>
+          <div style={{ fontSize: "1.3em", fontWeight: 700, marginBottom: "8px" }}>
+            ③ 把 USDT 從幣託轉進 Bitget Wallet 開卡
+          </div>
+          <p style={{ margin: "8px 0", lineHeight: 1.7 }}>
+            在 BitoPro 提領 USDT 到你的 Bitget Wallet 地址，即可開始使用 Bitget Wallet Card。
+          </p>
+        </div>
+      </div>
+
+      <div className="card" style={{ textAlign: "center", margin: "20px 0" }}>
+        <div style={{ color: "#666", fontSize: "0.95em" }}>備用：手動輸入邀請碼</div>
+        <div style={{ fontSize: "2em", fontWeight: 800, letterSpacing: 2, color: "#0096a3", margin: "8px 0" }}>
+          {CODE}
+        </div>
+        <button
+          onClick={copy}
+          className="btn"
+          style={{
+            fontSize: "1em",
+            cursor: "pointer",
+            padding: "10px 20px",
+            borderRadius: "8px",
+            background: copied ? "#28a745" : "#6c757d",
+            color: "#fff",
+            border: "none",
+          }}
+        >
+          {copied ? "✓ 已複製" : "複製邀請碼"}
+        </button>
+      </div>
 
       <div className="card" style={{ marginTop: 20 }}>
-        <h2 style={{ marginTop: 0 }}>Bitget Wallet Card 重點</h2>
+        <h2 style={{ marginTop: 0, fontSize: "1.3em" }}>💳 Bitget Wallet Card 特色</h2>
         <ul style={{ lineHeight: 1.9, paddingLeft: 20, margin: "12px 0" }}>
           <li>台灣可申請虛擬卡與實體卡</li>
-          <li>預設 2% 回饋，新卡友或當月消費滿 $200 可升級 3%（當月及下月，有每月上限）</li>
+          <li>消費回饋 2%–3%（依會員等級與活動）</li>
           <li>無月費年費、儲值免費</li>
-          <li>新台幣等非美元消費另收 1.7% 外幣手續費</li>
-          <li>實體卡申請費 49 USD</li>
+          <li>支援全球 Mastercard 通路</li>
         </ul>
         <p style={{ fontSize: "0.9em", margin: "12px 0 0" }}>
-          <a href="https://web3.bitget.com/helpCenter/867" target="_blank" rel="noopener">📖 官方回饋規則</a>
+          <a href="https://web3.bitget.com/helpCenter/867" target="_blank" rel="noopener">
+            📖 官方回饋規則
+          </a>
         </p>
       </div>
-
-      <h2>3 步驟開始</h2>
-      <ol style={{ lineHeight: 1.9, paddingLeft: 20 }}>
-        <li><strong>下載 App：</strong>點上方 App Store 或 Google Play 按鈕安裝 Bitget Wallet。</li>
-        <li><strong>建立錢包並備份助記詞：</strong>助記詞抄在紙上妥善保存，不要截圖、不要給任何人。</li>
-        <li><strong>填邀請碼 {CODE}：</strong>在 App 內邀請／獎勵頁輸入邀請碼完成綁定。</li>
-      </ol>
 
       <div className="card" style={{ background: "#fff3cd", borderColor: "#ffc107", marginTop: 20 }}>
-        <p style={{ margin: 0, fontSize: "0.95em", lineHeight: 1.6 }}>
-          <strong>⚠️ 風險提醒：</strong>加密貨幣價格波動劇烈，可能損失全部本金。本頁含邀請連結，僅供資訊參考，非投資建議；活動獎勵、資格與期限以 Bitget Wallet 官方公告為準。請自行評估風險並遵守所在地法規。
+        <p style={{ margin: 0, fontSize: "0.95em", lineHeight: 1.7 }}>
+          <strong>⚠️ 風險提醒：</strong>加密貨幣價格波動劇烈，可能損失全部本金。本頁含邀請連結，僅供資訊參考，非投資建議。活動期間、獎勵金額與資格條件以 Bitget Wallet 官方公告為準（2026/10/29–2026/11/30 前 1,000 名開卡享 15 USDT）。請自行評估風險並遵守所在地法規。
         </p>
       </div>
+
+      <p style={{ fontSize: "0.85em", color: "#999", textAlign: "center", marginTop: "30px" }}>
+        最後更新：2026 年 11 月 5 日
+      </p>
     </main>
   );
 }
