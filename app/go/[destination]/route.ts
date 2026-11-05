@@ -10,9 +10,13 @@ const DESTINATIONS = {
     url: "https://web3.bitget.com/share/2CWLpy?inviteCode=iCLnZD7K",
     allowedSources: ["fb", "threads", "ig", "square"],
   },
+  bgw: {
+    url: "https://web3.bitget.com/share/2CWLpy?inviteCode=iCLnZD7K",
+    allowedSources: ["fb", "threads", "ig", "linktree"],
+  },
   bitopro: {
     url: "https://www.bitopro.com/users/sign_up?referrer=7276911675",
-    allowedSources: ["fb", "threads", "ig"],
+    allowedSources: ["fb", "threads", "ig", "linktree"],
   },
 } as const;
 
