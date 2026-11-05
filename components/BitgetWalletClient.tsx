@@ -52,31 +52,57 @@ export default function BitgetWalletClient() {
         邀請碼 <strong style={{ color: "#0096a3" }}>{CODE}</strong>｜活動期間 2024/10/29–11/30 前 1,000 名開卡享 15 USDT 回饋
       </p>
 
-      <div className="card" style={{ background: "#e7f6f8", borderColor: "#00c2d1", marginTop: "20px" }}>
-        <h2 style={{ fontSize: "1.4em", marginTop: 0 }}>🎯 開卡 2 步驟</h2>
+      <div className="card" style={{ background: "#00c2d1", borderColor: "#00a3b0", marginTop: "20px", padding: "24px" }}>
+        <div style={{ fontSize: "1.5em", fontWeight: 700, color: "#fff", marginBottom: "12px", textAlign: "center" }}>
+          ① 先在幣託用台幣買 USDT
+        </div>
+        <p style={{ color: "#fff", margin: "12px 0", lineHeight: 1.7, textAlign: "center" }}>
+          BitoPro 是台灣合法合規的加密貨幣交易所，支援新台幣入金
+        </p>
+        <a 
+          href="/go/bitopro?src=linktree" 
+          target="_blank" 
+          rel="noopener" 
+          style={{ 
+            display: "block", 
+            textAlign: "center",
+            padding: "18px 24px", 
+            marginTop: "12px",
+            borderRadius: "12px",
+            fontSize: "1.3em",
+            fontWeight: 700,
+            textDecoration: "none",
+            background: "#fff",
+            color: "#00c2d1",
+            border: "3px solid #fff",
+          }}
+        >
+          👉 前往 BitoPro 註冊買 USDT
+        </a>
+      </div>
+
+      <div className="card" style={{ background: "#f8f9fa", borderColor: "#dee2e6", marginTop: "20px" }}>
+        <h2 style={{ fontSize: "1.4em", marginTop: 0 }}>接下來完成這 2 步驟</h2>
         
         <div style={stepStyle}>
           <div style={{ fontSize: "1.3em", fontWeight: 700, marginBottom: "8px" }}>
-            ① 先在幣託 BitoPro 用台幣買 USDT
+            ② 用邀請連結開 Bitget Wallet（自動帶 {CODE}）
           </div>
           <p style={{ margin: "8px 0", lineHeight: 1.7 }}>
-            BitoPro 是台灣合法合規的加密貨幣交易所，支援新台幣入金，方便購買 USDT 後轉入 Bitget Wallet。
+            點擊下方連結，系統會自動帶入邀請碼，完成錢包註冊。
           </p>
-          <a href="/go/bitopro?src=linktree" target="_blank" rel="noopener" style={btnStyle}>
-            前往 BitoPro 註冊
+          <a href="/go/bgw?src=linktree" target="_blank" rel="noopener" style={{ ...btnStyle, background: "#111", border: "2px solid #111", fontSize: "1.15em" }}>
+            🎁 點此開 Bitget Wallet（邀請碼已帶入）
           </a>
         </div>
 
         <div style={stepStyle}>
           <div style={{ fontSize: "1.3em", fontWeight: 700, marginBottom: "8px" }}>
-            ② 點邀請連結開卡（已自動帶入邀請碼 {CODE}）
+            ③ 把 USDT 從幣託轉進 Bitget Wallet 開卡
           </div>
           <p style={{ margin: "8px 0", lineHeight: 1.7 }}>
-            直接點擊下方連結，系統會自動帶入邀請碼，完成開卡即可享優惠。
+            在 BitoPro 提領 USDT 到你的 Bitget Wallet 地址，即可開始使用 Bitget Wallet Card。
           </p>
-          <a href="/go/bgw?src=linktree" target="_blank" rel="noopener" style={{ ...btnStyle, background: "#111", border: "2px solid #111", fontSize: "1.25em" }}>
-            🎁 點此開卡（邀請碼已帶入）
-          </a>
         </div>
       </div>
 
