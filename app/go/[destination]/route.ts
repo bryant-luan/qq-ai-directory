@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 
 // Destination configurations
 const DESTINATIONS = {
@@ -18,7 +19,7 @@ const DESTINATIONS = {
     url: "https://www.bitopro.com/users/sign_up?referrer=7276911675",
     allowedSources: ["fb", "fb_c1", "fb_btn", "fb_dm", "threads", "ig", "linktree", "site", "lp"],
   },
-} as const;
+};
 
 type Destination = keyof typeof DESTINATIONS;
 
@@ -57,6 +58,9 @@ export async function GET(
   const searchParams = request.nextUrl.searchParams;
   const src = searchParams.get("src") || "other";
 
+  // Log request (no PII: no IP, no User-Agent)
+  console.log(`[REDIRECT] destination=${destination} src=${src}`);
+
   // Validate destination
   if (!DESTINATIONS[destination as Destination]) {
     return NextResponse.json(
@@ -67,20 +71,25 @@ export async function GET(
 
   const config = DESTINATIONS[destination as Destination];
   
-  // Normalize source
-  const normalizedSrc = config.allowedSources.includes(src as any)
+  // Normalize source - check if src is in the allowed list
+  const normalizedSrc = config.allowedSources.includes(src)
     ? src
     : "other";
 
-  // Track click (await to ensure it completes before redirect)
-  // KV operations are fast (~50-100ms) and won't noticeably slow the redirect
-  await trackClick(destination, normalizedSrc);
+  console.log(`[REDIRECT] normalized src=${normalizedSrc} (allowed: ${config.allowedSources.join(", ")})`);
+
+  // Track click using waitUntil to ensure it completes after redirect
+  waitUntil(trackClick(destination, normalizedSrc));
 
   // Perform redirect (302 temporary redirect)
-  return NextResponse.redirect(
-    config.url.startsWith("http")
-      ? config.url
-      : new URL(config.url, request.url).toString(),
-    { status: 302 }
-  );
+  const redirectUrl = config.url.startsWith("http")
+    ? config.url
+    : new URL(config.url, request.url).toString();
+
+  return NextResponse.redirect(redirectUrl, {
+    status: 302,
+    headers: {
+      "Cache-Control": "private, no-store",
+    },
+  });
 }
