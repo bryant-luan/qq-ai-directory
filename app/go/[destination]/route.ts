@@ -12,11 +12,11 @@ const DESTINATIONS = {
   },
   bgw: {
     url: "https://web3.bitget.com/share/2CWLpy?inviteCode=iCLnZD7K",
-    allowedSources: ["fb", "threads", "ig", "linktree", "site"],
+    allowedSources: ["fb", "fb_c1", "fb_btn", "fb_dm", "threads", "ig", "linktree", "site", "lp"],
   },
   bitopro: {
     url: "https://www.bitopro.com/users/sign_up?referrer=7276911675",
-    allowedSources: ["fb", "threads", "ig", "linktree", "site"],
+    allowedSources: ["fb", "fb_c1", "fb_btn", "fb_dm", "threads", "ig", "linktree", "site", "lp"],
   },
 } as const;
 
@@ -72,10 +72,9 @@ export async function GET(
     ? src
     : "other";
 
-  // Track click (non-blocking - fire and forget)
-  trackClick(destination, normalizedSrc).catch(() => {
-    // Silent fail - tracking errors should never break redirects
-  });
+  // Track click (await to ensure it completes before redirect)
+  // KV operations are fast (~50-100ms) and won't noticeably slow the redirect
+  await trackClick(destination, normalizedSrc);
 
   // Perform redirect (302 temporary redirect)
   return NextResponse.redirect(

@@ -79,6 +79,11 @@ export default function BitgetWalletClient() {
         >
           👉 前往 BitoPro 註冊買 USDT
         </a>
+        <p style={{ color: "#fff", margin: "16px 0 0", lineHeight: 1.6, textAlign: "center", fontSize: "0.95em" }}>
+          <a href="/bitopro" style={{ color: "#fff", textDecoration: "underline" }}>
+            📖 查看 BitoPro 完整註冊教學
+          </a>
+        </p>
       </div>
 
       <div className="card" style={{ background: "#f8f9fa", borderColor: "#dee2e6", marginTop: "20px" }}>
